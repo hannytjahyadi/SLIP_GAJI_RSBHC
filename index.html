@@ -39,6 +39,57 @@
       line-height: 1.5;
     }
 
+    /* LOGIN SCREEN */
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: white;
+      max-width: 420px;
+      width: 100%;
+      padding: 32px 28px;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(15, 76, 129, 0.15);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .login-card h2 {
+      color: var(--primary);
+      font-size: 1.35rem;
+      margin-bottom: 6px;
+    }
+
+    .login-card p {
+      font-size: 0.88rem;
+      color: #64748b;
+      margin-bottom: 20px;
+    }
+
+    .login-card input[type="password"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    .login-error {
+      color: #dc2626;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-top: 10px;
+      display: none;
+    }
+
     /* NAVBAR & CONTROLS (HIDDEN ON PRINT) */
     .no-print {
       max-width: 1280px;
@@ -116,6 +167,7 @@
     .btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       padding: 9px 16px;
       border: none;
@@ -371,7 +423,7 @@
       body {
         background: white !important;
       }
-      .no-print, .modal, .status-toast {
+      .no-print, .modal, .status-toast, .login-wrapper {
         display: none !important;
       }
       .preview-wrapper {
@@ -401,97 +453,116 @@
 </head>
 <body>
 
-  <!-- DASHBOARD KONTROL (TIDAK IKUT TERCETAK) -->
-  <div class="no-print">
-    <div class="header-card">
-      <div>
-        <h1>Sistem Otomatisasi Slip Gaji</h1>
-        <p>RS. Bhakti Husada Cikarang &bull; Print A4 (3 Slip/Hal), PDF, Excel, &amp; Kirim Gambar PNG ke WhatsApp</p>
-      </div>
-      <div style="text-align: right; font-size: 0.82rem; opacity: 0.9;">
-        <div>Formula THP: <strong>Gross Prorate - Total Potongan + Koreksi</strong></div>
-        <div>Tips WA: Klik <strong>💬 WA</strong> &rarr; Otomatis Copy Gambar &rarr; Tekan <strong>Ctrl+V</strong> di Chat WA</div>
-      </div>
-    </div>
-
-    <div class="control-panel">
-      <div class="grid-controls">
-        <div class="form-group">
-          <label for="excelFile">1. Upload File Data Gaji (.xlsx / .xls)</label>
-          <input type="file" id="excelFile" accept=".xlsx,.xls" />
-        </div>
-        <div class="form-group">
-          <label for="periodeInput">2. Periode Bulan Slip</label>
-          <input type="text" id="periodeInput" value="OKTOBER 2026" />
-        </div>
-        <div class="form-group">
-          <label for="tanggalCetakInput">3. Tanggal TTD HRD</label>
-          <input type="text" id="tanggalCetakInput" value="31 Oktober 2026" />
-        </div>
-        <div class="form-group">
-          <label for="hrdNameInput">4. Jabatan / Penandatangan</label>
-          <input type="text" id="hrdNameInput" value="HRD" />
-        </div>
-      </div>
-
-      <div class="action-bar">
-        <button id="btnPrintAll" class="btn btn-primary" disabled onclick="window.print()">
-          🖨️ Print Langsung (A4 - 3 Slip/Hal)
-        </button>
-        <button id="btnDownloadAllPdf" class="btn btn-dark" disabled onclick="downloadMergedPdf()">
-          📄 Download PDF Gabungan (Semua)
-        </button>
-        <button id="btnDownloadZipPdf" class="btn btn-outline" disabled onclick="downloadZipIndividualPdf()">
-          🗜️ Download ZIP PDF Satuan
-        </button>
-        <button id="btnDownloadZipImg" class="btn btn-outline" disabled onclick="downloadZipIndividualPng()">
-          🖼️ Download ZIP Gambar PNG (WA)
-        </button>
-        <button id="btnDownloadExcel" class="btn btn-success" disabled onclick="exportFormattedExcel()">
-          📊 Download Excel Slip Gaji (.xlsx)
-        </button>
-        <button id="btnDownloadCsvMailMerge" class="btn btn-mail" disabled onclick="exportThunderbirdCsv()">
-          📨 Download CSV untuk Thunderbird
-        </button>
-      </div>
-    </div>
-
-    <!-- TABEL DAFTAR KARYAWAN -->
-    <div class="table-card" id="employeeTableSection" style="display: none;">
-      <div class="table-header">
-        <div>
-          <strong style="font-size: 1.05rem;">Daftar Karyawan (<span id="empCount">0</span> Orang)</strong>
-          <div style="font-size: 0.8rem; color: #64748b;">
-            <strong>💬 WA:</strong> Copy gambar PNG ke clipboard &amp; buka WA (tinggal Ctrl+V) &bull; 
-            <strong>🖼️ PNG:</strong> Unduh gambar satuan &bull; 
-            <strong>📄 PDF / ✉️ Email:</strong> Unduh/kirim PDF
-          </div>
-        </div>
-        <input type="text" id="searchInput" class="search-box" placeholder="Cari Nama / NIK / Bagian..." oninput="filterTable()" />
-      </div>
-
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>NIK</th>
-            <th>Nama Karyawan</th>
-            <th>Bagian</th>
-            <th class="text-right">Gross Prorate</th>
-            <th class="text-right">Total Potongan</th>
-            <th class="text-right">Koreksi</th>
-            <th class="text-right">Take Home Pay</th>
-            <th>Kontak (WA / Email)</th>
-            <th class="text-center">Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="employeeTableBody"></tbody>
-      </table>
+  <!-- LAYAR KUNCI PIN HRD -->
+  <div id="loginScreen" class="login-wrapper">
+    <div class="login-card">
+      <h2>Akses Terbatas HRD</h2>
+      <p>RS. Bhakti Husada Cikarang &bull; Masukkan PIN HRD untuk mengakses Sistem Slip Gaji.</p>
+      <input type="password" id="pinInput" placeholder="••••••" onkeydown="if(event.key==='Enter') loginHrd()" />
+      <button id="btnLogin" class="btn btn-primary" style="width: 100%; padding: 11px;" onclick="loginHrd()">
+        Buka Sistem Payroll
+      </button>
+      <div id="loginError" class="login-error"></div>
     </div>
   </div>
 
-  <!-- AREA RENDER SLIP GAJI (UNTUK PREVIEW A4 & PRINT) -->
-  <div class="preview-wrapper" id="slipContainer"></div>
+  <!-- KONTEN UTAMA (TERKUNCI SEBELUM PIN VALID) -->
+  <div id="mainApp" style="display: none;">
+    <!-- DASHBOARD KONTROL (TIDAK IKUT TERCETAK) -->
+    <div class="no-print">
+      <div class="header-card">
+        <div>
+          <h1>Sistem Otomatisasi Slip Gaji</h1>
+          <p>RS. Bhakti Husada Cikarang &bull; Terhubung &amp; Diaudit via Google Sheets</p>
+        </div>
+        <div style="text-align: right; font-size: 0.82rem;">
+          <div style="margin-bottom: 6px;">
+            <span id="serverStatus" class="badge badge-ok">Server Terhubung ✓</span>
+            <button class="btn btn-outline btn-sm" style="margin-left: 6px; padding: 3px 10px;" onclick="logoutHrd()">Kunci Sesi</button>
+          </div>
+          <div style="opacity: 0.9;">Tips WA: Klik <strong>💬 WA</strong> &rarr; Otomatis Copy Gambar &rarr; Tekan <strong>Ctrl+V</strong> di Chat WA</div>
+        </div>
+      </div>
+
+      <div class="control-panel">
+        <div class="grid-controls">
+          <div class="form-group">
+            <label for="excelFile">1. Upload File Data Gaji (.xlsx / .xls)</label>
+            <input type="file" id="excelFile" accept=".xlsx,.xls" />
+          </div>
+          <div class="form-group">
+            <label for="periodeInput">2. Periode Bulan Slip</label>
+            <input type="text" id="periodeInput" value="OKTOBER 2026" />
+          </div>
+          <div class="form-group">
+            <label for="tanggalCetakInput">3. Tanggal TTD HRD</label>
+            <input type="text" id="tanggalCetakInput" value="31 Oktober 2026" />
+          </div>
+          <div class="form-group">
+            <label for="hrdNameInput">4. Jabatan / Penandatangan</label>
+            <input type="text" id="hrdNameInput" value="HRD" />
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <button id="btnPrintAll" class="btn btn-primary" disabled onclick="handlePrintAll()">
+            🖨️ Print Langsung (A4 - 3 Slip/Hal)
+          </button>
+          <button id="btnDownloadAllPdf" class="btn btn-dark" disabled onclick="downloadMergedPdf()">
+            📄 Download PDF Gabungan (Semua)
+          </button>
+          <button id="btnDownloadZipPdf" class="btn btn-outline" disabled onclick="downloadZipIndividualPdf()">
+            🗜️ Download ZIP PDF Satuan
+          </button>
+          <button id="btnDownloadZipImg" class="btn btn-outline" disabled onclick="downloadZipIndividualPng()">
+            🖼️ Download ZIP Gambar PNG (WA)
+          </button>
+          <button id="btnDownloadExcel" class="btn btn-success" disabled onclick="exportFormattedExcel()">
+            📊 Download Excel Slip Gaji (.xlsx)
+          </button>
+          <button id="btnDownloadCsvMailMerge" class="btn btn-mail" disabled onclick="exportThunderbirdCsv()">
+            📨 Download CSV untuk Thunderbird
+          </button>
+        </div>
+      </div>
+
+      <!-- TABEL DAFTAR KARYAWAN -->
+      <div class="table-card" id="employeeTableSection" style="display: none;">
+        <div class="table-header">
+          <div>
+            <strong style="font-size: 1.05rem;">Daftar Karyawan (<span id="empCount">0</span> Orang)</strong>
+            <div style="font-size: 0.8rem; color: #64748b;">
+              <strong>💬 WA:</strong> Copy gambar PNG ke clipboard &amp; buka WA (tinggal Ctrl+V) &bull; 
+              <strong>🖼️ PNG:</strong> Unduh gambar satuan &bull; 
+              <strong>📄 PDF / ✉️ Email:</strong> Unduh/kirim PDF
+            </div>
+          </div>
+          <input type="text" id="searchInput" class="search-box" placeholder="Cari Nama / NIK / Bagian..." oninput="filterTable()" />
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>NIK</th>
+              <th>Nama Karyawan</th>
+              <th>Bagian</th>
+              <th class="text-right">Gross Prorate</th>
+              <th class="text-right">Total Potongan</th>
+              <th class="text-right">Koreksi</th>
+              <th class="text-right">Take Home Pay</th>
+              <th>Kontak (WA / Email)</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="employeeTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AREA RENDER SLIP GAJI (UNTUK PREVIEW A4 & PRINT) -->
+    <div class="preview-wrapper" id="slipContainer"></div>
+  </div>
 
   <!-- MODAL PREVIEW SATUAN -->
   <div class="modal" id="singleModal">
@@ -504,6 +575,11 @@
   <div class="status-toast" id="toast"></div>
 
   <script>
+    // ================= KONFIGURASI URL APPS SCRIPT HRD =================
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwx6pCcpMA8SQ5xGzp5ahFb8q78bR853KZAqP_lBTC0_bUP_tE-f9uXe5aEl-B7gZGc/exec";
+    // ==================================================================
+
+    let activePin = sessionStorage.getItem('hrd_slip_pin') || '';
     let employees = [];
 
     function showToast(msg, duration = 4500) {
@@ -514,207 +590,141 @@
       window._toastTimer = setTimeout(() => { t.style.display = 'none'; }, duration);
     }
 
-    // Helper: Bersihkan nama karyawan agar aman dijadikan nama file (.pdf)
-    function sanitizeFileName(nama) {
-      return String(nama || 'Karyawan')
-        .replace(/[\/\\:*?"<>|]/g, '') // hapus karakter terlarang di macOS/Windows
-        .replace(/\s+/g, ' ')           // rapikan spasi ganda
-        .trim();
+    // ==================== AUTENTIKASI & KOMUNIKASI SERVER ====================
+    function showLoginError(msg) {
+      const el = document.getElementById('loginError');
+      el.textContent = msg;
+      el.style.display = 'block';
     }
 
-    // Helper: Generate nama file PDF unik berdasarkan NAMA KARYAWAN saja
-    function getUniquePdfNames(list) {
-      const usedCounts = {};
-      return list.map(emp => {
-        const baseName = sanitizeFileName(emp.nama);
-        const key = baseName.toLowerCase();
-        if (!usedCounts[key]) {
-          usedCounts[key] = 1;
-          return `${baseName}.pdf`;
+    async function loginHrd() {
+      const input = document.getElementById('pinInput').value.trim();
+      if (!input) return showLoginError('Harap masukkan PIN HRD.');
+
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('TEMPEL_URL')) {
+        return showLoginError('URL Google Apps Script belum diisi pada kode index.html.');
+      }
+
+      const btn = document.getElementById('btnLogin');
+      btn.disabled = true;
+      btn.textContent = 'Memverifikasi PIN...';
+      document.getElementById('loginError').style.display = 'none';
+
+      try {
+        const res = await fetch(`${GOOGLE_SCRIPT_URL}?pin=${encodeURIComponent(input)}`);
+        const json = await res.json();
+
+        if (json.status === 'success') {
+          activePin = input;
+          sessionStorage.setItem('hrd_slip_pin', activePin);
+          document.getElementById('loginScreen').style.display = 'none';
+          document.getElementById('mainApp').style.display = 'block';
         } else {
-          usedCounts[key] += 1;
-          return `${baseName} (${usedCounts[key]}).pdf`;
+          showLoginError(json.message || 'PIN HRD tidak valid.');
+          sessionStorage.removeItem('hrd_slip_pin');
         }
+      } catch (err) {
+        console.error(err);
+        showLoginError('Gagal terhubung ke server Google Apps Script.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Buka Sistem Payroll';
+      }
+    }
+
+    function logoutHrd() {
+      activePin = '';
+      employees = [];
+      sessionStorage.removeItem('hrd_slip_pin');
+      document.getElementById('pinInput').value = '';
+      document.getElementById('slipContainer').innerHTML = '';
+      document.getElementById('employeeTableSection').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+    }
+
+    async function callAppsScript(payload) {
+      const res = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ pin: activePin, ...payload })
       });
+      const json = await res.json();
+      if (json.status === 'unauthorized') {
+        alert('Sesi HRD kedaluwarsa atau PIN tidak valid. Silakan login ulang.');
+        logoutHrd();
+        throw new Error('Unauthorized');
+      }
+      return json;
+    }
+
+    function logServerActivity(aktivitas, karyawan = '-', nik = '-', thp = '-', keterangan = '-') {
+      const periode = document.getElementById('periodeInput').value || 'OKTOBER 2026';
+      callAppsScript({
+        action: 'log_activity',
+        aktivitas,
+        periode,
+        karyawan,
+        nik,
+        thp,
+        keterangan
+      }).catch(err => console.warn('Log gagal tercatat:', err));
+    }
+
+    // ==================== HELPER FORMAT ====================
+    function sanitizeFileName(nama) {
+      return String(nama || 'Karyawan')
+        .replace(/[\/\\:*?"<>|]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
     }
 
     function formatNumber(num) {
       if (num === null || num === undefined || isNaN(num) || Math.round(num) === 0) return '-';
       const rounded = Math.round(num);
-      if (rounded < 0) {
-        return '(' + Math.abs(rounded).toLocaleString('id-ID') + ')';
-      }
-      return rounded.toLocaleString('id-ID');
+      return rounded < 0 ? '(' + Math.abs(rounded).toLocaleString('id-ID') + ')' : rounded.toLocaleString('id-ID');
     }
 
     function formatRupiah(num) {
       const rounded = Math.round(num || 0);
-      if (rounded < 0) {
-        return 'Rp (' + Math.abs(rounded).toLocaleString('id-ID') + ')';
-      }
-      return 'Rp ' + rounded.toLocaleString('id-ID');
+      return rounded < 0 ? 'Rp (' + Math.abs(rounded).toLocaleString('id-ID') + ')' : 'Rp ' + rounded.toLocaleString('id-ID');
     }
 
-    function terbilang(nilai) {
-      const angka = Math.round(Math.abs(nilai || 0));
-      if (angka === 0) return 'Nol Rupiah';
-      const huruf = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
-
-      function baca(n) {
-        if (n < 12) return ' ' + huruf[n];
-        if (n < 20) return baca(n - 10) + ' Belas';
-        if (n < 100) return baca(Math.floor(n / 10)) + ' Puluh' + baca(n % 10);
-        if (n < 200) return ' Seratus' + baca(n - 100);
-        if (n < 1000) return baca(Math.floor(n / 100)) + ' Ratus' + baca(n % 100);
-        if (n < 2000) return ' Seribu' + baca(n - 1000);
-        if (n < 1000000) return baca(Math.floor(n / 1000)) + ' Ribu' + baca(n % 1000);
-        if (n < 1000000000) return baca(Math.floor(n / 1000000)) + ' Juta' + baca(n % 1000000);
-        if (n < 1000000000000) return baca(Math.floor(n / 1000000000)) + ' Miliar' + baca(n % 1000000000);
-        return '';
-      }
-
-      const prefix = nilai < 0 ? 'Minus ' : '';
-      return '(' + prefix + baca(angka).trim().replace(/\s+/g, ' ') + ' Rupiah)';
-    }
-
-    function parseNum(val) {
-      if (val === null || val === undefined || val === '') return 0;
-      if (typeof val === 'number') return val;
-      const cleaned = String(val).replace(/[^0-9.-]/g, '');
-      const parsed = parseFloat(cleaned);
-      return isNaN(parsed) ? 0 : parsed;
-    }
-
-    // Event Listener Upload Excel
+    // ==================== UPLOAD EXCEL & KALKULASI VIA SERVER ====================
     document.getElementById('excelFile').addEventListener('change', function (e) {
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function (evt) {
+      reader.onload = async function (evt) {
         try {
+          showToast('Mengirim data Excel ke server untuk kalkulasi...', 15000);
           const data = new Uint8Array(evt.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
           const sheetName = workbook.SheetNames.includes('DATA UPLOAD') ? 'DATA UPLOAD' : workbook.SheetNames[0];
           const sheet = workbook.Sheets[sheetName];
-          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+          const rawRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+          const periode = document.getElementById('periodeInput').value || 'OKTOBER 2026';
 
-          // Deteksi posisi kolom dari baris header (baris 1-3 / indeks 0-2)
-          let emailColIdx = -1;
-          let waColIdx = -1;
-          let tunjMakanColIdx = -1;
-          let lemburShiftColIdx = -1;
-          let lemburJumlahColIdx = -1;
-          let uangMakanLemburColIdx = -1;
+          const json = await callAppsScript({
+            action: 'calculate_payroll',
+            periode: periode,
+            rows: rawRows
+          });
 
-          for (let r = 0; r < Math.min(4, rows.length); r++) {
-            rows[r].forEach((cellVal, cIdx) => {
-              const txt = String(cellVal || '').toLowerCase().replace(/\s+/g, ' ').trim();
-              if (txt.includes('email') || txt.includes('e-mail')) emailColIdx = cIdx;
-              if (txt === 'wa' || txt.includes('whatsapp') || txt.includes('no wa') || txt.includes('no. wa') || txt.includes('hp') || txt.includes('telp')) {
-                waColIdx = cIdx;
-              }
-              if (txt.includes('tunj. uang makan') || txt.includes('tunj uang makan') || txt.includes('tunjangan uang makan')) {
-                tunjMakanColIdx = cIdx;
-              }
-              if (txt === 'shift') {
-                lemburShiftColIdx = cIdx;
-              }
-              if (txt.includes('uang makan lembur')) {
-                uangMakanLemburColIdx = cIdx;
-              }
-            });
-          }
-
-          // Sub-kolom "Jumlah" di bawah "Lembur" berada tepat di sebelah kanan kolom "Shift"
-          if (lemburShiftColIdx >= 0) {
-            const nextHeader = String((rows[2] && rows[2][lemburShiftColIdx + 1]) || (rows[1] && rows[1][lemburShiftColIdx + 1]) || '')
-              .toLowerCase().trim();
-            if (nextHeader === 'jumlah' || nextHeader === '') {
-              lemburJumlahColIdx = lemburShiftColIdx + 1;
-            }
-          }
-
-          // Fallback indeks kolom sesuai struktur template DATA UPLOAD
-          const idxMakan = tunjMakanColIdx >= 0 ? tunjMakanColIdx : 14;                     // Kolom O: Tunj. Uang Makan
-          const idxLemburShift = lemburShiftColIdx >= 0 ? lemburShiftColIdx : 16;           // Kolom Q: Lembur -> Shift
-          const idxLemburJumlah = lemburJumlahColIdx >= 0 ? lemburJumlahColIdx : 17;        // Kolom R: Lembur -> Jumlah
-          const idxUangMakanLembur = uangMakanLemburColIdx >= 0 ? uangMakanLemburColIdx : 18; // Kolom S: Uang Makan Lembur
-
-          const parsedList = [];
-          for (let i = 3; i < rows.length; i++) {
-            const row = rows[i];
-            const nama = String(row[1] || '').trim();
-            if (!nama) continue;
-
-            const grossProrate = parseNum(row[20]);   // Kolom U (index 20)
-            const totalPotongan = parseNum(row[30]);  // Kolom AE (index 30)
-            const koreksi = parseNum(row[33]);        // Kolom AH (index 33)
-
-            // RUMUS THP: gross prorate - total potongan + koreksi
-            const takeHomePay = grossProrate - totalPotongan + koreksi;
-            const jumlahPendapatan = grossProrate + koreksi;
-
-            // Tunjangan makan dari kolom Tunj. Uang Makan
-            const tunjMakan = parseNum(row[idxMakan]);
-
-            // Lembur = kolom Jumlah (di bawah Lembur) + kolom Uang Makan Lembur
-            const lemburShift = parseNum(row[idxLemburShift]);
-            const nominalJumlahLembur = parseNum(row[idxLemburJumlah]);
-            const nominalUangMakanLembur = parseNum(row[idxUangMakanLembur]);
-            const lemburJumlah = nominalJumlahLembur + nominalUangMakanLembur;
-
-            parsedList.push({
-              no: row[0] || (parsedList.length + 1),
-              nama: nama,
-              nik: String(row[2] || '').trim(),
-              bagian: String(row[3] || '').trim(),
-              gajiPokok: parseNum(row[4]),        // E
-              tunjJabatan: parseNum(row[5]),      // F
-              tunjRisiko: parseNum(row[6]),       // G
-              tunjLevel: parseNum(row[7]),        // H
-              tunjKpi: parseNum(row[8]),          // I
-              hariKerja: parseNum(row[12]),       // M (Real Kehadiran)
-              efisiensi: parseNum(row[15]),       // P (Prorate Efisiensi)
-              tunjMakan: tunjMakan,               // Kolom Tunj. Uang Makan
-              lemburShift: lemburShift,           // Kolom Shift (Lembur)
-              lemburJumlah: lemburJumlah,         // Kolom Jumlah (Lembur) + Uang Makan Lembur
-              grossProrate: grossProrate,         // U
-              pph21: parseNum(row[21]),           // V
-              bpjs: parseNum(row[22]),            // W
-              telatMenit: parseNum(row[23]),      // X
-              telatJumlah: parseNum(row[24]),     // Y
-              potKpiPersen: parseNum(row[25]),    // Z
-              potKpiJumlah: parseNum(row[26]),    // AA
-              potHadirHari: parseNum(row[27]),    // AB
-              potHadirJumlah: parseNum(row[28]),  // AC
-              pinjaman: parseNum(row[29]),        // AD
-              totalPotongan: totalPotongan,       // AE
-              koreksi: koreksi,                   // AH
-              jumlahPendapatan: jumlahPendapatan,
-              takeHomePay: takeHomePay,
-              email: emailColIdx >= 0 ? String(row[emailColIdx] || '').trim() : '',
-              wa: waColIdx >= 0 ? String(row[waColIdx] || '').trim() : ''
-            });
-          }
-
-          if (parsedList.length === 0) {
-            alert('Data karyawan tidak ditemukan. Pastikan data mulai di baris ke-4 sesuai template.');
+          if (json.status !== 'success' || !json.employees || json.employees.length === 0) {
+            alert(json.message || 'Data karyawan tidak ditemukan. Pastikan data mulai di baris ke-4.');
             return;
           }
 
-          // Simpan nama file PDF unik (Nama Karyawan saja) ke masing-masing object
-          const pdfFileNames = getUniquePdfNames(parsedList);
-          parsedList.forEach((emp, idx) => {
-            emp.pdfFileName = pdfFileNames[idx];
-          });
-
-          employees = parsedList;
+          employees = json.employees;
           renderAll();
-          showToast(`Berhasil memuat ${employees.length} data slip gaji!`);
+          showToast(`Berhasil memuat & menghitung ${employees.length} slip gaji dari server!`);
         } catch (err) {
           console.error(err);
-          alert('Gagal membaca file Excel: ' + err.message);
+          if (err.message !== 'Unauthorized') {
+            alert('Gagal memproses file Excel: ' + err.message);
+          }
         }
       };
       reader.readAsArrayBuffer(file);
@@ -726,6 +736,7 @@
       });
     });
 
+    // ==================== RENDER SLIP & TABEL ====================
     function buildSlipHtml(emp, isStandaloneImage = false) {
       const periode = document.getElementById('periodeInput').value || 'OKTOBER 2026';
       const tglCetak = document.getElementById('tanggalCetakInput').value || '31 Oktober 2026';
@@ -855,7 +866,7 @@
               <td colspan="2" class="center">${tglCetak}</td>
             </tr>
             <tr>
-              <td colspan="7" style="font-style: italic; font-size: 8.3pt;">${terbilang(emp.takeHomePay)}</td>
+              <td colspan="7" style="font-style: italic; font-size: 8.3pt;">${emp.terbilangText || ''}</td>
               <td colspan="2" class="center bold">${hrdLabel}</td>
             </tr>
           </table>
@@ -927,7 +938,7 @@
       renderTable(filtered);
     }
 
-    // PREVIEW SATUAN
+    // ==================== PREVIEW & EKSPOR ====================
     function openSinglePreview(idx) {
       const emp = employees[idx];
       document.getElementById('singleModalBody').innerHTML = buildSlipHtml(emp, true);
@@ -945,7 +956,11 @@
       document.getElementById('singleModal').classList.remove('active');
     }
 
-    // GENERATE GAMBAR PNG (BLOB) UNTUK WHATSAPP
+    function handlePrintAll() {
+      logServerActivity('Print A4 Semua Slip', `${employees.length} Karyawan`);
+      window.print();
+    }
+
     async function generatePngBlob(emp) {
       const wrapper = document.createElement('div');
       wrapper.style.position = 'fixed';
@@ -977,10 +992,10 @@
       showToast(`Membuat gambar PNG untuk ${emp.nama}...`);
       const blob = await generatePngBlob(emp);
       saveAs(blob, `Slip_Gaji_${sanitizeFileName(emp.nama)}_${periode}.png`);
+      logServerActivity('Download PNG Satuan', emp.nama, emp.nik, emp.takeHomePay);
       showToast(`Gambar PNG ${emp.nama} berhasil diunduh!`);
     }
 
-    // DOWNLOAD ZIP BERISI GAMBAR PNG SATUAN PER KARYAWAN
     async function downloadZipIndividualPng() {
       const periode = (document.getElementById('periodeInput').value || 'OKTOBER_2026').replace(/\s+/g, '_');
       const zip = new JSZip();
@@ -988,16 +1003,15 @@
         const emp = employees[i];
         showToast(`Memproses PNG (${i + 1}/${employees.length}): ${emp.nama}...`, 10000);
         const blob = await generatePngBlob(emp);
-        const safeName = `${sanitizeFileName(emp.nama)}.png`;
-        zip.file(safeName, blob);
+        zip.file(`${sanitizeFileName(emp.nama)}.png`, blob);
       }
       showToast('Mengompres gambar ke file ZIP...');
       const content = await zip.generateAsync({ type: 'blob' });
       saveAs(content, `Slip_Gaji_Gambar_PNG_${periode}.zip`);
+      logServerActivity('Download ZIP PNG', `${employees.length} Karyawan`);
       showToast('File ZIP Gambar PNG berhasil diunduh!');
     }
 
-    // GENERATE PDF SATUAN (NAMA FILE = NAMA KARYAWAN SAJA)
     async function generatePdfBlob(emp) {
       const wrapper = document.createElement('div');
       wrapper.style.padding = '10mm';
@@ -1017,30 +1031,21 @@
       return await html2pdf().set(opt).from(wrapper).outputPdf('blob');
     }
 
-    // DOWNLOAD PDF SATUAN (NAMA FILE = NAMA KARYAWAN SAJA)
     async function downloadSinglePdf(idx) {
       const emp = employees[idx];
       const fileName = emp.pdfFileName || `${sanitizeFileName(emp.nama)}.pdf`;
       showToast(`Membuat PDF untuk ${emp.nama}...`);
       const blob = await generatePdfBlob(emp);
       saveAs(blob, fileName);
+      logServerActivity('Download PDF Satuan', emp.nama, emp.nik, emp.takeHomePay, fileName);
       showToast(`PDF ${fileName} berhasil diunduh!`);
     }
 
-    // DOWNLOAD PDF GABUNGAN (3 SLIP PER HALAMAN A4 - ANTI BLANK)
     async function downloadMergedPdf() {
       const btn = document.getElementById('btnDownloadAllPdf');
       try {
         const pages = document.querySelectorAll('#slipContainer .a4-page');
-        if (!pages.length) {
-          alert('Belum ada data slip gaji untuk diunduh.');
-          return;
-        }
-
-        if (!window.jspdf || !window.jspdf.jsPDF) {
-          alert('Library jsPDF gagal dimuat. Pastikan koneksi internet aktif saat membuka halaman ini.');
-          return;
-        }
+        if (!pages.length) return alert('Belum ada data slip gaji untuk diunduh.');
 
         btn.disabled = true;
         const periode = (document.getElementById('periodeInput').value || 'OKTOBER_2026').replace(/\s+/g, '_');
@@ -1092,6 +1097,7 @@
 
         const pdfBlob = pdf.output('blob');
         saveAs(pdfBlob, `Slip_Gaji_Semua_${periode}.pdf`);
+        logServerActivity('Download PDF Gabungan', `${employees.length} Karyawan`);
         showToast('PDF Gabungan berhasil diunduh!');
       } catch (err) {
         console.error('Error PDF Gabungan:', err);
@@ -1101,7 +1107,6 @@
       }
     }
 
-    // DOWNLOAD ZIP BERISI PDF SATUAN PER KARYAWAN (NAMA FILE = NAMA KARYAWAN SAJA)
     async function downloadZipIndividualPdf() {
       const periode = (document.getElementById('periodeInput').value || 'OKTOBER_2026').replace(/\s+/g, '_');
       const zip = new JSZip();
@@ -1115,38 +1120,29 @@
       showToast('Mengompres PDF ke file ZIP...');
       const content = await zip.generateAsync({ type: 'blob' });
       saveAs(content, `Slip_Gaji_PDF_Satuan_${periode}.zip`);
+      logServerActivity('Download ZIP PDF Satuan', `${employees.length} Karyawan`);
       showToast('File ZIP PDF satuan berhasil diunduh!');
     }
 
-    // FORMAT NOMOR WA INDONESIA (08xx -> 628xx)
-    function formatWaNumber(raw) {
-      let digits = String(raw || '').replace(/\D/g, '');
-      if (!digits) return '';
-      if (digits.startsWith('0')) digits = '62' + digits.slice(1);
-      if (digits.startsWith('8')) digits = '62' + digits;
-      return digits;
-    }
-
-    function buildMessageText(emp) {
-      const periode = document.getElementById('periodeInput').value || 'OKTOBER 2026';
-      return `Halo *${emp.nama}* (NIK: ${emp.nik}),\n\n` +
-        `Berikut Slip Gaji Anda periode *${periode}* dari *RS. Bhakti Husada Cikarang*.\n` +
-        `Take Home Pay: *${formatRupiah(emp.takeHomePay)}*\n\n` +
-        `Terima kasih.\n_HRD RS. Bhakti Husada Cikarang_`;
-    }
-
-    // KIRIM GAMBAR PNG KE WHATSAPP (AUTO-COPY KE CLIPBOARD + BUKA WA)
+    // KIRIM GAMBAR PNG KE WHATSAPP (LINK & REDAKSI DARI SERVER)
     async function sendWhatsAppImage(idx) {
       const emp = employees[idx];
-      const phone = formatWaNumber(emp.wa);
-      if (!phone) {
+      if (!emp.wa) {
         alert(`Nomor WhatsApp untuk ${emp.nama} belum diisi di file Excel upload.`);
         return;
       }
 
-      showToast(`Menyiapkan gambar slip gaji ${emp.nama}...`);
-      const pngBlob = await generatePngBlob(emp);
-      const periode = (document.getElementById('periodeInput').value || 'OKTOBER_2026').replace(/\s+/g, '_');
+      showToast(`Menyiapkan gambar & link WA untuk ${emp.nama}...`);
+      const periode = document.getElementById('periodeInput').value || 'OKTOBER 2026';
+
+      const [pngBlob, serverRes] = await Promise.all([
+        generatePngBlob(emp),
+        callAppsScript({ action: 'prepare_wa', emp, periode })
+      ]);
+
+      if (serverRes.status !== 'success') {
+        return alert(serverRes.message || 'Gagal menyiapkan pesan WA dari server.');
+      }
 
       let copiedToClipboard = false;
       try {
@@ -1163,15 +1159,14 @@
       if (copiedToClipboard) {
         showToast(`✅ Gambar slip ${emp.nama} tersalin! Tinggal tekan Ctrl+V (atau Cmd+V) di chat WhatsApp.`, 6500);
       } else {
-        saveAs(pngBlob, `Slip_Gaji_${sanitizeFileName(emp.nama)}_${periode}.png`);
+        saveAs(pngBlob, `Slip_Gaji_${sanitizeFileName(emp.nama)}_${periode.replace(/\s+/g, '_')}.png`);
         showToast(`Gambar slip ${emp.nama} diunduh. Silakan lampirkan di chat WhatsApp.`, 6000);
       }
 
-      const text = encodeURIComponent(buildMessageText(emp));
-      window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+      window.open(serverRes.waUrl, '_blank');
     }
 
-    // KIRIM PDF KE EMAIL
+    // KIRIM PDF KE EMAIL (REDAKSI DARI SERVER)
     async function sendEmail(idx) {
       const emp = employees[idx];
       if (!emp.email) {
@@ -1180,13 +1175,16 @@
       }
 
       const periode = document.getElementById('periodeInput').value || 'OKTOBER 2026';
-      await downloadSinglePdf(idx);
-      const subject = encodeURIComponent(`Slip Gaji Periode ${periode} - ${emp.nama}`);
-      const body = encodeURIComponent(buildMessageText(emp).replace(/\*/g, '').replace(/_/g, ''));
-      window.location.href = `mailto:${emp.email}?subject=${subject}&body=${body}`;
+      const [_, serverRes] = await Promise.all([
+        downloadSinglePdf(idx),
+        callAppsScript({ action: 'prepare_email', emp, periode })
+      ]);
+
+      if (serverRes.status === 'success') {
+        window.location.href = serverRes.mailtoUrl;
+      }
     }
 
-    // EXPORT KE EXCEL (.XLSX) FORMAT SLIP GAJI
     function exportFormattedExcel() {
       const wb = XLSX.utils.book_new();
       const wsData = [];
@@ -1210,7 +1208,7 @@
         wsData.push(['JUMLAH PENDAPATAN', '', '', '', emp.jumlahPendapatan, '', '', 'JUMLAH POTONGAN', '', '', '', '', '', emp.totalPotongan]);
         wsData.push([]);
         wsData.push(['TAKE HOME PAY', '', '', '', emp.takeHomePay, '', '', '', '', '', '', '', tglCetak, '']);
-        wsData.push([terbilang(emp.takeHomePay), '', '', '', '', '', '', '', '', '', '', '', hrdLabel, '']);
+        wsData.push([emp.terbilangText || '', '', '', '', '', '', '', '', '', '', '', '', hrdLabel, '']);
         wsData.push([]);
         wsData.push([]);
       });
@@ -1223,10 +1221,10 @@
       ];
       XLSX.utils.book_append_sheet(wb, ws, 'SLIP GAJI');
       XLSX.writeFile(wb, `Slip_Gaji_${periode.replace(/\s+/g, '_')}.xlsx`);
+      logServerActivity('Download Excel Slip Gaji', `${employees.length} Karyawan`);
       showToast('File Excel Slip Gaji berhasil diunduh!');
     }
 
-    // EXPORT CSV UNTUK THUNDERBIRD (NAMA FILE PDF = NAMA KARYAWAN SAJA)
     function exportThunderbirdCsv() {
       const periode = document.getElementById('periodeInput').value || 'OKTOBER 2026';
       const rows = [['Email', 'Nama', 'NIK', 'Bagian', 'THP', 'Periode', 'NamaFilePDF']];
@@ -1246,15 +1244,23 @@
       });
 
       if (rows.length === 1) {
-        alert('Tidak ada data email karyawan yang terisi di file Excel upload.');
-        return;
+        return alert('Tidak ada data email karyawan yang terisi di file Excel upload.');
       }
 
       const csvContent = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
       const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
       saveAs(blob, `Daftar_Kirim_Thunderbird_${periode.replace(/\s+/g, '_')}.csv`);
+      logServerActivity('Download CSV Thunderbird', `${rows.length - 1} Penerima`);
       showToast(`CSV Thunderbird (${rows.length - 1} penerima) berhasil diunduh!`);
     }
+
+    // AUTO-LOGIN JIKA SESI MASIH AKTIF DI TAB BROWSER
+    (async function init() {
+      if (activePin) {
+        document.getElementById('pinInput').value = activePin;
+        await loginHrd();
+      }
+    })();
   </script>
 </body>
 </html>
